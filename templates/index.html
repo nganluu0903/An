@@ -1,64 +1,108 @@
-<!doctype html>
 <html>
-<head>
-<meta charset="utf-8">
-<title>Các lỗi kênh Perox </title>
-</head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+header {
+  background-color: #4b8e8d;
+  padding: 30px;
+  text-align: center;
+  font-size: 35px;
+  color: white;
+}
+legend{
+	/*background-color: #666;*/
+	text-align: center;
+	font-size: 30px;
+}
+fieldset{
+	width: 20%
+}
+button {
+  background-color: #ec9b3b;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  font-size: 35px;
+}
+ec9b3b
+button:hover {
+  opacity: 0.8;
+}
+label{
+		display: inline-block;
+		text-align: right;
+		float: left;
+	}
+input{
+		display: inline-block;
+		text-align: left;
+		float: right;
+	}
+</style>
+<!-- <head>BIOPHOTONICS 108 LED CONTROL</head> -->
 
 <body>
-	Các lỗi thường gặp ở kênh Perox:
-	<ol>
-		<li> 
-			<a href = "./short of perox 1.html"> 
-			   Perox 1 không bơm lên được buồng Perox </a> 
-		</li>
-		
-		<li> Perox 2 không bơm lên được buồng Perox  </li>
-		<li> Perox 3 không bơm lên được buồng Perox  </li>
-		<li> Perox 2 & 3 không bơm lên được buồng Perox </li>
-		
-	</ol>
+	<header>
+  		<h2>BIOPHOTONICS 108 LED CONTROL</h2>
+	</header>
+	<div>
+		<legend></legend>
+	</div>
+	<div>
+		<!-- Get the desired color of an LED -->
+		<fieldset>
+			<legend>SET-UP</legend>
+			<div>
+				<label for="led-color">COLOR</label>
+				<input type="color" id="led-color" value="#f7be16" />
+				<br />
+				<br />
+				<label for="text">TEXT</label>
+				<input type="text" id="text"  value="Hello" />
+				<br />
+				<br />
+				<button type="submit" onClick="sendrgb()">OK </button>
+				<!-- <input type="submit" value="Submit" oninput="sendrgb()" /> -->
+			</div>
+	<script type="text/javascript">
+		// Setting up the websocket (client-side)
+		var webSocket;
+		if (window.location.protocol == "https:") {
+			var ws_scheme = "wss://";
+		} else {
+			var ws_scheme = "ws://";
+		}
+		webSocket = new WebSocket(ws_scheme + window.location.hostname + '/subscribe'); // for production
+		webSocket.onmessage = function(event) { onMessage(event); }
+		// User-defined functions
+		function hexToRgb(hex) {
+			var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+			return result ? {
+				r: parseInt(result[1], 16),
+				g: parseInt(result[2], 16),
+				b: parseInt(result[3], 16)
+			} : null;
+		}
+		function sendrgb() {
+			var chu=document.getElementById('text').value;
+			var json1 = [{"text":chu}]
+			var hex = document.getElementById('led-color').value;
+			var rgb = hexToRgb(hex);
+			var finalObj = json1.concat(rgb);
+			webSocket.send(JSON.stringify(finalObj));
+		}
+		function onMessage(event) {
+			console.log(event.data);
+		}
+		// Keep websocket open by continuously pinging
+		function pingServer(){
+			webSocket.send("");
+		}
+		setInterval(pingServer,50000);
+	</script>
 
-<h2> Error due to Perox reagent </h2>
-<table border ="1" cellpadding ="10" cellspacing="0">
-	<tr>
-		<th>   </th>
-		<th> Bình thường </th>
-		<th> Perox 1 không lên được buồng </th>
-		<th> Perox 2 không lên được buồng </th>
-		<th> Perox 3 không lên được buồng </th>
-		<th> Không có cả Perox 2 & 3 ở buồng </th>
-		<th> Perox sheath không bơm lên được buồng</th>
-	</tr>
-	<tr>
-		<th> Run Screen </th>
-		<th> <img src ="./images/rs_normal.png"
-				  style = "width: 240px; height: 180px; margin-left: 0.00px; margin-top: 0.00px"/> </th>
-		<th> <img src ="./images/rs_shortofperox1.png" 
-				  style = "width: 240px; height: 180px; margin-left: 0.00px; margin-top: 0.00px"/> </th>
-		
-	</tr>
-	<tr>
-		<th> Perox Rate </th>
-		<th> <img src ="./images/peroxrate_normal.png"
-				  style = "width: 240px; height: 180px; margin-left: 0.00px; margin-top: 0.00px"/> </th>
-		<th> <img src ="./images/peroxrate_shortofperox1.png"
-				  style = "width: 240px; height: 180px; margin-left: 0.00px; margin-top: 0.00px"/> </th>
-		
-	</tr>
-	<tr>
-		<th> Perox Diagram</th>
-		<th> <img src ="./images/peroxdiagram_normal.png"
-				  style = "width: 240px; height: 180px; margin-left: 0.00px; margin-top: 0.00px"/> </th>
-		<th> <img src ="./images/peroxdiagram_shortofperox1.png"
-				  style = "width: 240px; height: 180px; margin-left: 0.00px; margin-top: 0.00px"/> </th>
-	</tr>
-	<tr>
-		<th> Cách xử lý </th>
-		<th>  </th>
-		<th> <a href = "short of perox 1.html"> Click here  </a></th>
-	</tr>
-</table>
-	
 </body>
+
 </html>
